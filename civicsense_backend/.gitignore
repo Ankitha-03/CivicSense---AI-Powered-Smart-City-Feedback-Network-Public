@@ -1,0 +1,25 @@
+# Python
+_pycache_/
+*.pyc
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+static/
+
+# Environment files
+.env
+*.env
+.env.local
+.env.backend
+*/.env
+
+# Virtual environment
+venv/
+env/
+
+# Logs
+*.log
