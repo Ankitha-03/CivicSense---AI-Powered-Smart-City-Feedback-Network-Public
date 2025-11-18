@@ -35,7 +35,7 @@ The system automatically detects issue categories, stores location, and generate
 	•	Session-based access control
 
 ## Project Structure
-'''text
+```text
 CivicSenseProject/
 │
 ├── civicsense_backend/        # Django backend
@@ -56,7 +56,7 @@ CivicSenseProject/
 │   ├── vite.config.js
 │
 └── README.md
-'''
+```
 
 
 ## 🛠 Technology Stack
