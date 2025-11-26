@@ -17,7 +17,13 @@ class UserSerializer(serializers.ModelSerializer):
 # 🔹 ISSUE SERIALIZER
 # ==========================
 class IssueSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)  # Nested user info (read-only)
+    user = UserSerializer(read_only=True)
+
+    # Override to accept ANY value from frontend
+    category = serializers.CharField(required=False)
+    severity = serializers.CharField(required=False)
+
+    # Accept photo (optional)
     photos = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:

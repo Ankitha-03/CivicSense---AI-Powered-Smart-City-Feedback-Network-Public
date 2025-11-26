@@ -110,11 +110,9 @@ export default function ReportIssue() {
         formDataToSend.append("photos", file);
       });
 
-      const response = await axiosInstance.post("issues/", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axiosInstance.post("submit-issue/", formDataToSend);
 
-      alert("✅ Issue successfully submitted!");
+      alert(response.data.message);
       navigate("/home");
     } catch (error) {
       console.error("❌ Error submitting issue:", error.response?.data || error);

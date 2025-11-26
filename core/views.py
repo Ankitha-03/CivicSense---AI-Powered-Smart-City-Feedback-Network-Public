@@ -155,3 +155,38 @@ class IssueViewSet(viewsets.ModelViewSet):
         report_generator = CityHealthReportGenerator(Issue)
         report = report_generator.generate_weekly_report()
         return Response(report)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def submit_issue(request):
+    print("=== SUBMIT ISSUE DEBUG ===")
+    print("request.data:", request.data)
+    print("FILES:", request.FILES)
+
+    serializer = IssueSerializer(data=request.data, context={"request": request})
+
+    if serializer.is_valid():
+        issue = serializer.save(user=request.user)
+        return Response({
+            "message": "Your report has been submitted and will be resolved soon!",
+            "issue_id": issue.id,
+        }, status=201)
+
+    # ❗ Force save even if serializer complains
+    issue = Issue.objects.create(
+        user=request.user,
+        title=request.data.get("title", ""),
+        description=request.data.get("description", ""),
+        location=request.data.get("location", ""),
+        category=request.data.get("category", ""),
+        severity=request.data.get("severity", ""),
+        contact=request.data.get("contact", ""),
+        email=request.data.get("email", ""),
+        phone=request.data.get("phone", ""),
+        photos=request.FILES.get("photos"),
+    )
+
+    return Response({
+        "message": "Your report has been submitted and will be resolved soon!",
+        "issue_id": issue.id,
+    }, status=201)

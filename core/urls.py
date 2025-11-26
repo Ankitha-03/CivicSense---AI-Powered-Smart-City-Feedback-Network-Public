@@ -5,6 +5,7 @@ from .views import (
     login_user,
     get_user_profile, 
     
+    
     IssueViewSet
 
 )
@@ -19,7 +20,6 @@ router.register(r'issues', IssueViewSet, basename='issue')
 urlpatterns = [
     # ✅ ADD THIS: The endpoint your frontend is calling
     path('auth/registration/', register_user, name='registration'),
-    
     # Custom authentication endpoints (Simple JWT)
     path('auth/register/', register_user, name='register'),
     path('auth/login/', login_user, name='login'),

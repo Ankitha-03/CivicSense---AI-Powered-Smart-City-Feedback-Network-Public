@@ -6,7 +6,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
-from core.views import IssueViewSet
+from core.views import IssueViewSet, submit_issue
+
 
 # Router for API endpoints
 router = DefaultRouter()
@@ -17,6 +18,7 @@ urlpatterns = [
     
     # API endpoints
     path('api/', include(router.urls)),
+    path('api/submit-issue/', submit_issue, name='submit_issue'),
     
     # Authentication endpoints
     path('api/auth/', include('dj_rest_auth.urls')),

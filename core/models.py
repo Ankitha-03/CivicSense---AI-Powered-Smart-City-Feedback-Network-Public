@@ -5,19 +5,20 @@ from django.contrib.auth.models import User
 
 class Issue(models.Model):
     CATEGORY_CHOICES = [
-        ("road_damage", "Road Damage"),
-        ("garbage", "Garbage"),
-        ("street_light", "Street Light"),
-        ("water_leak", "Water Leak"),
-        ("pollution", "Pollution"),
-        ("illegal_dumping", "Illegal Dumping"),
-        ("other", "Other"),
-    ]
+    ("infrastructure", "Infrastructure — Roads, bridges, sidewalks, public buildings"),
+    ("sanitation", "Sanitation — Garbage collection, waste management, cleanliness"),
+    ("public_safety", "Public Safety — Street lighting, traffic signals, security concerns"),
+    ("utilities", "Utilities — Water supply, electricity, gas, telecommunications"),
+    ("transportation", "Transportation — Public transit, parking, traffic management"),
+    ("environment", "Environment — Parks, trees, pollution, noise complaints"),
+]
+    
 
     SEVERITY_CHOICES = [
-        ("low", "Low"),
+        ("minor", "Minor"),
         ("medium", "Medium"),
         ("high", "High"),
+        ("critical","Critical")
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
