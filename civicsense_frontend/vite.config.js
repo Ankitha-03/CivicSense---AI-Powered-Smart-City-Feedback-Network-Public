@@ -6,10 +6,19 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/media': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+    },
     fs: {
-      // Allow serving files from the project root
       allow: [
-        '..', // one level up (so it can access node_modules)
+        '..',
         path.resolve(__dirname, '../')
       ]
     }

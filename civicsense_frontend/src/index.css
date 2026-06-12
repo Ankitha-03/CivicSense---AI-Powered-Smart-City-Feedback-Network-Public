@@ -1,11 +1,80 @@
 /* eslint-disable */
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
+
+/* ── Design tokens ── */
+@theme {
+  --color-primary:      #1a56db;
+  --color-primary-dark: #1e429f;
+  --color-accent:       #0e9f6e;
+  --color-warning:      #d97706;
+  --color-danger:       #e02424;
+}
+
+/* ── Base typography ── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Animations ── */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-6px); }
-  40%, 80% { transform: translateX(6px); }
+  20%, 60%  { transform: translateX(-5px); }
+  40%, 80%  { transform: translateX(5px); }
 }
-input.border-red-500, textarea.border-red-500 {
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes btn-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(26, 86, 219, 0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(26, 86, 219, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(26, 86, 219, 0); }
+}
+
+.animate-fade-in  { animation: fade-in  0.3s ease-out both; }
+.animate-slide-in { animation: slide-in 0.25s ease-out both; }
+.btn-pulse        { animation: btn-pulse 1s ease-out 2; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounce-once {
+  0%   { transform: translateY(0); }
+  30%  { transform: translateY(-10px); }
+  60%  { transform: translateY(-4px); }
+  80%  { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+.animate-slide-up    { animation: slide-up    0.2s ease-out both; }
+.animate-bounce-once { animation: bounce-once 0.7s ease-in-out both; }
+
+input.input-error, textarea.input-error {
   animation: shake 0.3s ease-in-out;
 }
+
+/* ── Focus rings ── */
+*:focus-visible {
+  outline: 2px solid #1a56db;
+  outline-offset: 2px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f3f4f6; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }

@@ -7,8 +7,11 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# Load .env variables if any
-load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / '.env.backend')
+# Load .env variables — try project root then this directory
+_env_root = Path(__file__).resolve().parent.parent / '.env.backend'
+_env_here  = Path(__file__).resolve().parent / '.env.backend'
+load_dotenv(dotenv_path=_env_root)
+load_dotenv(dotenv_path=_env_here)   # this one has the actual keys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -121,9 +124,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ============================================
 # CORS SETTINGS
 # ============================================
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # allows any localhost port in development
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
@@ -180,3 +186,8 @@ JWT_AUTH_REFRESH_COOKIE = "refresh"
 # OPENAI API (for AI module)
 # ============================================
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# ============================================
+# GEMINI API (for chatbot)
+# ============================================
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")

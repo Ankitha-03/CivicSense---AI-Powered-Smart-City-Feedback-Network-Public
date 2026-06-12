@@ -1,164 +1,204 @@
-// src/pages/LoginSignup.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../hooks/useToast";
+import { loginApi, registerApi } from "../api/authApi";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import loginPhoto from "../assets/login_photo.jpg";
-import "@fontsource/poppins";
+
+function InputField({ label, type = "text", name, placeholder, required, value, onChange, rightEl }) {
+  return (
+    <div className="mb-4">
+      {label && <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>}
+      <div className="relative">
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1a56db] focus:border-transparent transition-colors duration-150"
+        />
+        {rightEl && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">{rightEl}</div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function LoginSignup() {
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fields, setFields] = useState({ fullName: "", email: "", password: "" });
+
   const navigate = useNavigate();
-  const { loginUser } = useAuth();
+  const { loginUser, setAuthFromTokens } = useAuth();
+  const showToast = useToast();
+
+  const set = (name, value) => setFields((prev) => ({ ...prev, [name]: value }));
+  const handle = (e) => set(e.target.name, e.target.value);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    const { fullName, email, password } = fields;
 
-  const email = e.target.email.value.trim();
-  const password = e.target.password.value.trim();
-  const fullName = e.target.fullName?.value.trim();
-
-  const endpoint = isLogin
-    ? "http://127.0.0.1:8000/api/auth/login/"
-    : "http://127.0.0.1:8000/api/auth/registration/";
-
-  const payload = isLogin
-    ? { email, password }
-    : {
-        email,
-        username: (fullName || email.split("@")[0]).replace(/\s+/g, "").toLowerCase(),
-        password1: password,
-        password2: password,
-      };
-
-  console.log("=== SENDING REQUEST ===");
-  console.log("Endpoint:", endpoint);
-  console.log("Payload:", payload);
-
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    console.log("🟩 FULL Server response:", data);
-    console.log("Response status:", response.status);
-
-    if (response.ok) {
-      alert(`${isLogin ? "Login" : "Signup"} successful 🎉`);
-
-      // ✅ Handle all token formats
-      if (data.tokens?.access && data.tokens?.refresh) {
-        localStorage.setItem("access_token", data.tokens.access);
-        localStorage.setItem("refresh_token", data.tokens.refresh);
-      } else if (data.access && data.refresh) {
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
-      } else if (data.key) {
-        // Handle dj-rest-auth TokenAuthentication
-        localStorage.setItem("access_token", data.key);
-        localStorage.setItem("refresh_token", data.key);
-      } else {
-        console.warn("⚠️ No tokens found in response:", data);
-      }
-
-      localStorage.setItem("user", JSON.stringify(data.user || data));
-
-      console.log("✅ Tokens saved, navigating to /home");
-      navigate("/home");
-    } else {
-      // ❌ Backend returned error
-      console.error("❌ Backend Error:", data);
-      const errorMsg =
-        data.non_field_errors?.[0] ||
-        data.email?.[0] ||
-        data.password?.[0] ||
-        data.detail ||
-        JSON.stringify(data);
-      alert("Error: " + errorMsg);
+    if (!email || !password) {
+      showToast("Please fill in all required fields.", "warning");
+      return;
     }
-  } catch (error) {
-    console.error("❌ Network Error:", error);
-    alert("Something went wrong. Check console for details.");
-  }
-};
+    if (!isLogin && !fullName.trim()) {
+      showToast("Full name is required for sign up.", "warning");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isLogin) {
+        const { ok, data } = await loginApi(email, password);
+        if (!ok) {
+          const msg = data.non_field_errors?.[0] ?? data.email?.[0] ?? data.detail ?? data.error ?? "Invalid credentials.";
+          showToast(msg, "error");
+          return;
+        }
+        const access  = data.tokens?.access  ?? data.access  ?? data.key;
+        const refresh = data.tokens?.refresh ?? data.refresh ?? data.key;
+        if (!access) { showToast("Login failed — no token received.", "error"); return; }
+        setAuthFromTokens(access, refresh, data.user ?? null);
+        showToast("Welcome back!", "success");
+        navigate("/");
+      } else {
+        const username = (fullName || email.split("@")[0]).replace(/\s+/g, "").toLowerCase();
+        const { ok, data } = await registerApi(email, username, password);
+        if (!ok) {
+          const msg =
+            data.email?.[0] ?? data.username?.[0] ?? data.password1?.[0] ??
+            data.non_field_errors?.[0] ?? data.error ?? "Sign up failed. Please try again.";
+          showToast(msg, "error");
+          return;
+        }
+        const access  = data.tokens?.access  ?? data.access  ?? data.key;
+        const refresh = data.tokens?.refresh ?? data.refresh ?? data.key;
+        if (!access) { showToast("Account created! Please sign in.", "success"); setIsLogin(true); return; }
+        setAuthFromTokens(access, refresh, data.user ?? null);
+        showToast("Account created! Welcome to CivicSense.", "success");
+        navigate("/");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gradient-to-br from-blue-100 to-blue-300 font-[Poppins]">
-      <div className="flex bg-white rounded-3xl shadow-2xl overflow-hidden max-w-5xl w-full h-[550px]">
-        {/* Left Side - Form */}
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <p className="text-center text-gray-600 text-sm mb-2">
-            Sign in or create an account to report civic issues
+    <div className="min-h-screen flex items-center justify-center bg-[#f9fafb] px-4 py-12">
+      <div className="w-full max-w-4xl bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex">
+        {/* Form */}
+        <div className="w-full md:w-1/2 p-8 sm:p-12 flex flex-col justify-center">
+          {/* Logo */}
+          <div className="flex items-center gap-2 mb-8">
+            <div className="w-9 h-9 rounded-lg bg-[#1a56db] flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-sm">CS</span>
+            </div>
+            <span className="text-xl font-bold text-[#1a56db]">CivicSense</span>
+          </div>
+
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
+            {isLogin ? "Sign in to your account" : "Create an account"}
+          </h2>
+          <p className="text-gray-500 text-sm mb-8">
+            {isLogin ? "Report civic issues and track their progress." : "Join thousands improving their cities."}
           </p>
 
-          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center tracking-wide">
-            {isLogin ? "Sign in" : "Sign Up"}
-          </h2>
-
-          <form className="flex flex-col" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             {!isLogin && (
-              <input
-                type="text"
+              <InputField
+                label="Full Name"
                 name="fullName"
-                placeholder="Full Name"
-                className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={fields.fullName}
+                onChange={handle}
+                placeholder="Ankitha Pradhan"
+                required
               />
             )}
-
-            <input
+            <InputField
+              label="Email Address"
               type="email"
               name="email"
-              placeholder="Email"
-              className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={fields.email}
+              onChange={handle}
+              placeholder="you@example.com"
               required
             />
-
-            <input
-              type="password"
+            <InputField
+              label="Password"
+              type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="Password"
-              className="mb-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={fields.password}
+              onChange={handle}
+              placeholder="••••••••"
               required
+              rightEl={
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              }
             />
 
             <button
               type="submit"
-              className="bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md"
+              disabled={loading}
+              className="w-full mt-2 py-3 bg-[#1a56db] text-white rounded-lg font-semibold text-sm hover:bg-[#1e429f] transition-colors duration-150 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLogin ? "Login" : "Sign Up"}
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {loading ? "Please wait…" : isLogin ? "Sign In" : "Create Account"}
             </button>
           </form>
 
-          <p className="text-center mt-6 text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <span
+          <p className="text-center mt-6 text-sm text-gray-500">
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
+            <button
+              type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-600 font-semibold cursor-pointer ml-1 hover:underline"
+              className="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors"
             >
-              {isLogin ? "Sign Up" : "Login"}
-            </span>
+              {isLogin ? "Sign Up" : "Sign In"}
+            </button>
           </p>
+
+          <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+            <p className="text-xs text-gray-400">
+              Department officer?{" "}
+              <Link
+                to="/department/login"
+                className="text-[#1a56db] font-semibold hover:underline"
+              >
+                Sign in to the department portal
+              </Link>
+            </p>
+          </div>
         </div>
 
-        {/* Right Side - Image */}
+        {/* Image panel */}
         <div
-          className="hidden md:flex w-1/2 relative flex-col justify-center items-center text-white"
+          className="hidden md:flex w-1/2 relative flex-col justify-end p-10 text-white"
           style={{
             backgroundImage: `url(${loginPhoto})`,
             backgroundSize: "cover",
-            backgroundPosition: "center left -40px",
+            backgroundPosition: "center",
           }}
         >
-          <div className="absolute inset-0 bg-blue-700/50"></div>
-
-          <div className="relative z-10 text-center px-6 -mt-10">
-            <h1 className="text-3xl font-bold mb-3 drop-shadow-md">
-              WELCOME TO CIVICSENSE
-            </h1>
-            <p className="text-lg tracking-wide font-medium drop-shadow-sm">
-              SEE IT. REPORT IT. FIX IT.
+          <div className="absolute inset-0 bg-blue-900/70" />
+          <div className="relative z-10">
+            <h3 className="text-3xl font-extrabold mb-2 drop-shadow">See it. Report it. Fix it.</h3>
+            <p className="text-blue-200 text-sm leading-relaxed">
+              CivicSense connects citizens with local government to resolve infrastructure, sanitation, and safety issues faster.
             </p>
           </div>
         </div>
