@@ -94,6 +94,4 @@ Usernames:
 - `PATCH /api/department/issues/:id/status/` — Update status
 - `POST /api/chat/` — AI chatbot endpoint
 
-## Author
 
-Developed by Ankitha as part of academic project work at CMRIT, Bengaluru.
