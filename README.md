@@ -31,62 +31,57 @@ An AI-powered Smart City civic issue reporting platform that connects citizens d
 - **AI:** Google Gemini API (text and vision)
 - **Geolocation:** Browser Geolocation API, OpenStreetMap Nominatim
 
-## Project Structure
-CivicSenseProject/
-
-civicsense_backend/    # Django settings, URLs, JWT auth
-
-civicsense_frontend/   # React app (Vite)
-
-core/                  # Issues, departments, chat, AI analysis
-
-users/                 # User accounts and profiles
-
-manage.py
-
 ## Setup
 
 ### Backend
-cd CivicSenseProject
 
-python -m venv venv
-
-venv\Scripts\activate
-
-pip install -r requirements.txt
-
-python manage.py migrate
-
-python manage.py create_department_officers
-
-python manage.py runserver
+    cd CivicSenseProject
+    python -m venv venv
+    venv\Scripts\activate
+    pip install -r requirements.txt
+    python manage.py migrate
+    python manage.py create_department_officers
+    python manage.py runserver
 
 Create a `.env` file in the project root with:
-GEMINI_API_KEY=your_gemini_api_key
 
-SECRET_KEY=your_django_secret_key
-
-DEBUG=True
+    GEMINI_API_KEY=your_gemini_api_key
+    SECRET_KEY=your_django_secret_key
+    DEBUG=True
 
 ### Frontend
-cd civicsense_frontend
 
-npm install
-
-npm run dev
+    cd civicsense_frontend
+    npm install
+    npm run dev
 
 ## Department Officer Demo Credentials
 
-| Department              | Username          | Password    |
-|-------------------------|-------------------|-------------|
-| Public Works (Roads)    | pwd_officer       | Officer@123 |
-| Solid Waste (Garbage)   | garbage_officer   | Officer@123 |
-| Electricity             | electric_officer  | Officer@123 |
-| Water Supply            | water_officer     | Officer@123 |
-| Town Planning           | planning_officer  | Officer@123 |
-| General Administration  | admin_officer     | Officer@123 |
+CivicSense includes a separate portal at `/department/login` for municipal officers. Each issue category is automatically routed to its respective department:
 
-Department portal: `/department/login`
+- Road Damage — Public Works Department
+- Garbage — Solid Waste Department
+- Streetlight — Electricity Department
+- Water Leak — Water Supply Department
+- Encroachment — Town Planning Department
+- Other — General Administration
+
+To generate demo officer accounts locally, run:
+
+    python manage.py create_department_officers
+
+### Demo Login Credentials
+
+All demo officer accounts share the password: **Officer@123**
+
+Usernames:
+
+- `pwd_officer` — Public Works (Roads)
+- `garbage_officer` — Solid Waste
+- `electric_officer` — Electricity
+- `water_officer` — Water Supply
+- `planning_officer` — Town Planning
+- `admin_officer` — General Administration
 
 ## API Endpoints
 
@@ -98,3 +93,7 @@ Department portal: `/department/login`
 - `GET /api/department/issues/` — Officer issue queue
 - `PATCH /api/department/issues/:id/status/` — Update status
 - `POST /api/chat/` — AI chatbot endpoint
+
+## Author
+
+Developed by Ankitha as part of academic project work at CMRIT, Bengaluru.
