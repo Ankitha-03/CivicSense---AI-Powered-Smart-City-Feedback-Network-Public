@@ -1,95 +1,97 @@
-# 🚀 CivicSense — AI-Powered Smart City Feedback Network
+# CivicSense
 
-CivicSense is an AI-powered platform that allows citizens to report civic issues such as potholes, garbage accumulation, water supply problems, electricity faults, and more — directly from their phones.
-The system automatically detects issue categories, stores location, and generates weekly city insights.
+An AI-powered Smart City civic issue reporting platform that connects citizens directly with municipal departments. Citizens can report public infrastructure issues with photo evidence and live location, while department officers manage and resolve them through a dedicated portal.
 
-⸻
+## Features
 
-## ⭐ Features
+**For Citizens**
+- Multi-step issue reporting with photo upload
+- Automatic location detection via browser Geolocation and OpenStreetMap
+- Real-time status tracking: Pending, In Progress, Resolved
+- Personal dashboard with submitted reports and weekly insights
+- AI-powered chatbot assistant for platform guidance
 
-### 📝 Issue Reporting
-	•	Upload images
-	•	Auto-detect issue type using AI (pothole, garbage, road crack, etc.)
-	•	Map-based precise location selection
-	•	Severity rating
-	•	Track status of reported issues
+**For Department Officers**
+- Separate municipal portal with department-specific access
+- Auto-routed issues based on category (PWD, Water, Electricity, etc.)
+- Status update workflow with internal notes
+- Filterable issue management table
 
-### 🤖 AI Categorization
-	•	Automatically classifies uploaded images
-	•	Routes issues to correct category
-	•	Helps generate weekly insights
+**AI Capabilities**
+- Gemini-powered chatbot for civic guidance
+- Vision-based image analysis on submitted photos
+- Automatic category and severity detection
+- Mismatch flagging when uploaded image does not match reported category
 
-### 📍 Interactive Map (Leaflet)
-	•	Drag marker to update location
-	•	Auto-fetch current GPS location
-	•	Reverse geocoding included
+## Tech Stack
 
-### 📊 Weekly City Health Report
-	•	Category-wise issue breakdown
-	•	Total resolved/pending/critical counts
-	•	Visual analytics and trends
+- **Frontend:** React, Vite, Tailwind CSS, React Router, Axios, Lucide Icons
+- **Backend:** Django, Django REST Framework, SQLite
+- **Authentication:** JWT (SimpleJWT)
+- **AI:** Google Gemini API (text and vision)
+- **Geolocation:** Browser Geolocation API, OpenStreetMap Nominatim
 
-### 🔐 Secure Authentication
-	•	JWT login/signup
-	•	Protected pages
-	•	Session-based access control
+## Setup
 
-## Project Structure
-```text
-CivicSenseProject/
-│
-├── civicsense_backend/        # Django backend
-│   ├── core/
-│   ├── users/
-│   ├── ai_utils.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── manage.py
-│
-├── civicsense_frontend/       # React + Vite frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   ├── api/
-│   ├── vite.config.js
-│
-└── README.md
-```
+### Backend
 
-
-## 🛠 Technology Stack
-
-### **Frontend**
-	•	React (Vite)
-	•	TailwindCSS
-	•	Leaflet Maps
-	•	Axios
-	•	React Router
-
-### **Backend**
-	•	Django
-	•	Django REST Framework
-	•	Pillow (Image processing)
-	•	Custom AI models (image classification)
-
-### **Database**
-	•	SQLite (development)
-	•	PostgreSQL (recommended for production)
-
-## Setup Instructions
- 
-  ### Backend Setup
-    cd civicsense_backend
+    cd CivicSenseProject
     python -m venv venv
-    venv\Scripts\activate     # Windows
+    venv\Scripts\activate
     pip install -r requirements.txt
     python manage.py migrate
+    python manage.py create_department_officers
     python manage.py runserver
 
+Create a `.env` file in the project root with:
 
-  ### Frontend Setup
+    GEMINI_API_KEY=your_gemini_api_key
+    SECRET_KEY=your_django_secret_key
+    DEBUG=True
+
+### Frontend
+
     cd civicsense_frontend
     npm install
     npm run dev
+
+## Department Officer Demo Credentials
+
+CivicSense includes a separate portal at `/department/login` for municipal officers. Each issue category is automatically routed to its respective department:
+
+- Road Damage — Public Works Department
+- Garbage — Solid Waste Department
+- Streetlight — Electricity Department
+- Water Leak — Water Supply Department
+- Encroachment — Town Planning Department
+- Other — General Administration
+
+To generate demo officer accounts locally, run:
+
+    python manage.py create_department_officers
+
+### Demo Login Credentials
+
+All demo officer accounts share the password: **Officer@123**
+
+Usernames:
+
+- `pwd_officer` — Public Works (Roads)
+- `garbage_officer` — Solid Waste
+- `electric_officer` — Electricity
+- `water_officer` — Water Supply
+- `planning_officer` — Town Planning
+- `admin_officer` — General Administration
+
+## API Endpoints
+
+- `POST /api/auth/register/` — Citizen registration
+- `POST /api/auth/login/` — Citizen login
+- `POST /api/auth/department-login/` — Officer login
+- `GET /api/issues/` — List user's issues
+- `POST /api/issues/` — Submit new issue
+- `GET /api/department/issues/` — Officer issue queue
+- `PATCH /api/department/issues/:id/status/` — Update status
+- `POST /api/chat/` — AI chatbot endpoint
+
+
