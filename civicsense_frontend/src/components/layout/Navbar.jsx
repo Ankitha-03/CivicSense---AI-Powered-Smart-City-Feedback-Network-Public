@@ -1,5 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+/**
+ * Navbar.jsx
+ *
+ * Persistent top navigation bar for all citizen-facing pages. Features:
+ *   - 3 px primary-blue accent bar pinned to the very top of the viewport
+ *   - CivicSense wordmark linking to the dashboard
+ *   - Desktop nav links (Dashboard, My Reports) with active-link underline
+ *   - "Report Issue" CTA button
+ *   - Avatar button with initial derived from the authenticated username;
+ *     opens a dropdown showing "Signed in as" and a "Sign out" action
+ *   - Mobile hamburger menu that collapses nav links and actions
+ *
+ * Reads username from AuthContext; the avatar initial and dropdown label
+ * both update immediately after login without a page reload.
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 import { Menu, X } from "lucide-react";
 

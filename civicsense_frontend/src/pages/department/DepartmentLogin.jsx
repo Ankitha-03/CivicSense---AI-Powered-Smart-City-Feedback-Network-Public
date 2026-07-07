@@ -1,4 +1,19 @@
-import React, { useState, useEffect } from "react";
+/**
+ * DepartmentLogin.jsx
+ *
+ * Login form for department officers. Submits credentials to
+ * POST /api/auth/department-login/ via deptLoginApi and, on success,
+ * stores the returned JWT in DepartmentAuthContext.
+ *
+ * If the officer is already authenticated (deptIsAuthenticated), the
+ * component redirects immediately to /department/dashboard via useEffect
+ * to avoid calling navigate() during the render phase.
+ *
+ * Citizen accounts that attempt to log in here receive a 403 error
+ * from the backend, displayed as an inline error message.
+ */
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDeptAuth } from "../../context/DepartmentAuthContext";
 import { deptLoginApi } from "../../api/departmentApi";

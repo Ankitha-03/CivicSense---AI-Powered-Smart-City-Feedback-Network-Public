@@ -1,5 +1,21 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+/**
+ * App.jsx
+ *
+ * Root component for the CivicSense React application. Defines the full
+ * client-side route tree for both citizen-facing pages and the department
+ * officer portal. Wraps the tree with DepartmentAuthProvider and
+ * ToastProvider so both contexts are available to all child routes.
+ *
+ * Citizen routes are protected by PrivateRoute (requires citizen JWT).
+ * Department routes are protected by DepartmentPrivateRoute (requires
+ * a valid department officer JWT stored separately).
+ *
+ * The ChatWidget is mounted outside the route tree so it persists across
+ * all page navigations without remounting.
+ */
+
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from "./context/AuthContext";
 import { ToastProvider } from "./hooks/useToast";
 import { DepartmentAuthProvider } from "./context/DepartmentAuthContext";

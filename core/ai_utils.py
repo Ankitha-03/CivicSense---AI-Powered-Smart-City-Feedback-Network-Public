@@ -1,20 +1,24 @@
-import random
+"""
+DEPRECATED — no longer called by any active code path.
 
-def analyze_issue_photo(photo_path):
+This file contained a random-prediction placeholder that was used during
+early development before the Gemini Vision integration was added. It is
+retained for reference only.
+
+Real AI analysis is now handled by core.ai_analysis.analyze_issue_image,
+which uses the Google Gemini Vision API.
+
+Module: core
+Author: Ankitha
+"""
+
+
+def analyze_issue_photo(_photo_path):
     """
-    Dummy AI logic — replace with real AI API later.
-    photo_path: local path to uploaded image
+    DEPRECATED. Replaced by core.ai_analysis.analyze_issue_image.
+
+    Previously returned a random category string as a stand-in for
+    real image classification. Not called from any active code path.
     """
-    categories = [
-        "Road Damage",
-        "Garbage Collection",
-        "Electrical Issue",
-        "Water Supply",
-        "Other"
-    ]
-    
-    # TODO: Replace this section with actual ML model inference
-    # For now, pick a random one to test flow
-    prediction = random.choice(categories)
-    print(f"AI predicted category: {prediction} for photo {photo_path}")
-    return prediction
+    # This function is intentionally empty. Do not re-activate.
+    pass

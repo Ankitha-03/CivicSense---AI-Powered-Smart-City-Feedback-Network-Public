@@ -1,4 +1,20 @@
-import React, { useEffect, useState } from "react";
+/**
+ * Dashboard.jsx
+ *
+ * The main citizen-facing page, composed of two sections:
+ *
+ *   1. Landing — hero banner, "How It Works" explainer, reportable categories
+ *      grid, and platform-wide stats bar. Visible to all authenticated citizens.
+ *
+ *   2. Personal dashboard — stat cards (total / pending / in-progress / resolved)
+ *      with count-up animation, a recent reports table (last 5 issues), and a
+ *      "This Week at a Glance" insights panel computed client-side from the
+ *      issue list.
+ *
+ * Data is fetched via the useIssues hook which calls GET /api/issues/.
+ */
+
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import {
   ChevronRight, ChevronDown,

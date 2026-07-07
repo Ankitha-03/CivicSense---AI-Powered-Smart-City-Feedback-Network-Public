@@ -1,5 +1,24 @@
-import React, { createContext, useContext, useState } from "react";
-import { loginApi, refreshTokenApi } from "../api/authApi";
+/**
+ * AuthContext.jsx
+ *
+ * Provides citizen authentication state and actions to the entire app via
+ * React Context. Persists the JWT access/refresh tokens and user object in
+ * localStorage so sessions survive page reloads.
+ *
+ * Exposed context values:
+ *   user               - raw user object stored at login
+ *   authToken          - { access, refresh } JWT pair
+ *   isAuthenticated    - boolean derived from authToken presence
+ *   username           - citizen username, decoded from JWT payload as fallback
+ *   displayName        - first_name if set, otherwise username (used for greetings)
+ *   loginUser          - async; calls POST /api/auth/login/
+ *   logoutUser         - clears all stored credentials and resets state
+ *   refreshAccessToken - exchanges the stored refresh token for a new access token
+ *   setAuthFromTokens  - called after registration to set auth state directly
+ */
+
+import React, { createContext, useContext, useState } from 'react';
+import { loginApi, refreshTokenApi } from '../api/authApi';
 
 function decodeJWT(token) {
   try {

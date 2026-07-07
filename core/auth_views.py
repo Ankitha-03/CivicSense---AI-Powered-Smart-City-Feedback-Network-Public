@@ -1,19 +1,27 @@
-# core/auth_views.py
+"""
+UNUSED — custom login view that was used during early development.
 
+CustomLoginView is not registered in any URL configuration and is not
+called by any active code path. The active citizen login endpoint is
+the login_user function in core.views.
+
+Module: core
+Author: Ankitha
+"""
+
+# Third-party
 from dj_rest_auth.views import LoginView as DjRestAuthLoginView
-from rest_framework.response import Response
-from rest_framework import status
+
 
 class CustomLoginView(DjRestAuthLoginView):
+    """
+    UNUSED. Subclass of the dj-rest-auth LoginView kept for reference.
+
+    Was used to inspect request/response data during early development.
+    All debug output has been removed. The active login logic lives in
+    core.views.login_user.
+    """
+
     def post(self, request, *args, **kwargs):
-        print("=== LOGIN REQUEST ===")
-        print("Request data:", request.data)
-        print("Headers:", request.headers)
-        
-        response = super().post(request, *args, **kwargs)
-        
-        print("=== LOGIN RESPONSE ===")
-        print("Status:", response.status_code)
-        print("Data:", response.data)
-        
-        return response
+        """Delegate to the parent dj-rest-auth login handler."""
+        return super().post(request, *args, **kwargs)

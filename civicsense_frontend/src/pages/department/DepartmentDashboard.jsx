@@ -1,4 +1,18 @@
-import React, { useEffect, useState } from "react";
+/**
+ * DepartmentDashboard.jsx
+ *
+ * Overview dashboard for department officers. Displays four stat cards
+ * (total, pending, in-progress, resolved) fetched from
+ * GET /api/department/stats/, and a table of the five most recent pending
+ * issues fetched from GET /api/department/issues/?status=pending.
+ *
+ * Both requests run in parallel via Promise.all on mount. A "View all"
+ * link navigates to the full DepartmentIssues page.
+ *
+ * Auth: requires a valid department officer JWT (IsDepartmentOfficer).
+ */
+
+import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useDeptAuth } from "../../context/DepartmentAuthContext";
 import { fetchDeptStats, fetchDeptIssues } from "../../api/departmentApi";

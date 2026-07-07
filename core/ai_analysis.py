@@ -1,9 +1,29 @@
+"""
+Gemini Vision image analysis for CivicSense issue reports.
+
+Provides analyze_issue_image(), which sends an uploaded civic issue photo
+to the Google Gemini Vision API and returns a structured classification:
+detected category, confidence score, severity assessment, a factual
+description of what is visible, and whether the image matches the
+citizen-reported category.
+
+Model selection uses the same lazy discovery and preference-ordered fallback
+strategy as core.chat_views: available flash models are fetched once on first
+call and cached for the process lifetime. The model that last succeeded is
+tried first on each subsequent request.
+
+Module: core
+Author: Ankitha
+"""
+
+# Standard library
 import json
 import logging
 import mimetypes
 import re
 import time
 
+# Third-party
 from google import genai
 from google.genai import types
 from google.genai.errors import ClientError

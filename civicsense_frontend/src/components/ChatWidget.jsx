@@ -1,4 +1,26 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+/**
+ * ChatWidget.jsx
+ *
+ * Floating AI assistant widget available on every page. Sends citizen
+ * messages to POST /api/chat/ (Django proxies to Google Gemini) and renders
+ * the replies with light markdown formatting (bold, line breaks).
+ *
+ * Key behaviours:
+ *   - Slide-up panel, 360 x 480 px, fixed bottom-right
+ *   - Unread dot on the launcher button until the panel is opened for the
+ *     first time (persisted in localStorage so it clears after first visit)
+ *   - Bounce animation on the launcher button 2 s after mount
+ *   - Quick-reply chips on the welcome message; context-aware chips after
+ *     each assistant reply based on CHIP_RULES keyword matching
+ *   - Inline navigation links injected into replies that mention pages
+ *     (e.g. "go to My Reports"); links close the panel on click
+ *   - Conversation history capped at MAX_HISTORY messages to stay within
+ *     the Gemini context window
+ *   - Page context hint (current pathname) sent with every request so
+ *     Gemini can give location-aware answers
+ */
+
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MessageCircle, X, Send, Trash2 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 

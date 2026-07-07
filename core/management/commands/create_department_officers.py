@@ -1,5 +1,25 @@
+"""
+Management command: create_department_officers
+
+Seeds the database with the six city departments and one officer account
+per department. Safe to run multiple times — uses get_or_create throughout.
+
+All officer accounts share the password defined in the PASSWORD constant.
+This is intentional for demo/development use; rotate credentials before
+any public deployment.
+
+Usage:
+    python manage.py create_department_officers
+
+Module: core.management.commands
+Author: Ankitha
+"""
+
+# Third-party
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+
+# Local
 from core.models import Department, DepartmentProfile
 
 DEPARTMENTS = [

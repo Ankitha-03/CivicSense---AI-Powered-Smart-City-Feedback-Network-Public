@@ -1,27 +1,54 @@
+"""
+DRF serializers for the CivicSense core application.
+
+Provides serialization and validation for Issue creation/retrieval,
+department issue management, and status updates.
+
+Module: core
+Author: Ankitha
+"""
+
+# Third-party
 from rest_framework import serializers
 from django.contrib.auth.models import User
+
+# Local
 from .models import Issue, Department
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Minimal read-only representation of a Django User for nested use."""
+
     class Meta:
         model = User
         fields = ["id", "username", "email"]
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
+    """Full representation of a Department, used in admin and reference lookups."""
+
     class Meta:
         model = Department
         fields = ["id", "name", "slug", "assigned_category", "email"]
 
 
 class IssueSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    category = serializers.CharField(required=False, allow_blank=True)
-    severity = serializers.CharField(required=False, allow_blank=True)
-    status = serializers.CharField(required=False)
-    photos = serializers.ImageField(required=False, allow_null=True)
-    photos_url = serializers.SerializerMethodField()
+    """
+    Serializer for citizen-facing Issue read and write operations.
+
+    Handles multipart form submissions (photos), generates the absolute
+    URL for uploaded photos, and exposes all AI analysis fields as
+    read-only so citizens cannot tamper with them.
+
+    Custom validation enforces minimum title and description lengths.
+    """
+
+    user        = UserSerializer(read_only=True)
+    category    = serializers.CharField(required=False, allow_blank=True)
+    severity    = serializers.CharField(required=False, allow_blank=True)
+    status      = serializers.CharField(required=False)
+    photos      = serializers.ImageField(required=False, allow_null=True)
+    photos_url  = serializers.SerializerMethodField()
     assigned_department_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -42,17 +69,20 @@ class IssueSerializer(serializers.ModelSerializer):
         ]
 
     def get_photos_url(self, obj):
+        """Return the absolute URL for the uploaded photo, or None if absent."""
         request = self.context.get("request")
         if obj.photos and request:
             return request.build_absolute_uri(obj.photos.url)
         return None
 
     def get_assigned_department_name(self, obj):
+        """Return the human-readable department name, or None if unassigned."""
         if obj.assigned_department:
             return obj.assigned_department.name
         return None
 
     def validate_title(self, value):
+        """Ensure the title is present and meets the minimum length."""
         if not value or not value.strip():
             raise serializers.ValidationError("Issue title is required.")
         if len(value.strip()) < 5:
@@ -60,6 +90,7 @@ class IssueSerializer(serializers.ModelSerializer):
         return value.strip()
 
     def validate_description(self, value):
+        """Ensure the description is present and meets the minimum length."""
         if not value or not value.strip():
             raise serializers.ValidationError("Please describe the issue.")
         if len(value.strip()) < 10:
@@ -67,11 +98,13 @@ class IssueSerializer(serializers.ModelSerializer):
         return value.strip()
 
     def validate_location(self, value):
+        """Ensure a location is provided."""
         if not value or not value.strip():
             raise serializers.ValidationError("Location is required.")
         return value.strip()
 
     def create(self, validated_data):
+        """Attach the authenticated request user as the issue owner."""
         request = self.context.get("request")
         user = request.user if request else None
         if user and user.is_authenticated:
@@ -80,9 +113,17 @@ class IssueSerializer(serializers.ModelSerializer):
 
 
 class DepartmentIssueSerializer(serializers.ModelSerializer):
-    photos_url = serializers.SerializerMethodField()
+    """
+    Read-only serializer for department officers viewing assigned issues.
+
+    Exposes the reporter's username and the absolute photo URL without
+    exposing sensitive citizen contact details beyond what is explicitly
+    listed in `fields`.
+    """
+
+    photos_url               = serializers.SerializerMethodField()
     assigned_department_name = serializers.SerializerMethodField()
-    reporter_name = serializers.SerializerMethodField()
+    reporter_name            = serializers.SerializerMethodField()
 
     class Meta:
         model = Issue
@@ -100,20 +141,29 @@ class DepartmentIssueSerializer(serializers.ModelSerializer):
         ]
 
     def get_photos_url(self, obj):
+        """Return the absolute URL for the uploaded photo, or None if absent."""
         request = self.context.get("request")
         if obj.photos and request:
             return request.build_absolute_uri(obj.photos.url)
         return None
 
     def get_assigned_department_name(self, obj):
+        """Return the human-readable department name, or None if unassigned."""
         if obj.assigned_department:
             return obj.assigned_department.name
         return None
 
     def get_reporter_name(self, obj):
+        """Return the citizen's username who filed the report."""
         return obj.user.username if obj.user else None
 
 
 class StatusUpdateSerializer(serializers.Serializer):
-    status = serializers.ChoiceField(choices=["pending", "in_progress", "resolved"])
+    """
+    Validates the payload for a department officer updating issue status.
+
+    Accepts an optional note to be stored as department_notes on the issue.
+    """
+
+    status           = serializers.ChoiceField(choices=["pending", "in_progress", "resolved"])
     department_notes = serializers.CharField(required=False, allow_blank=True, default="")

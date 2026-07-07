@@ -1,7 +1,33 @@
+"""
+Gemini-powered AI chatbot endpoint for the CivicSense platform.
+
+Exposes a single POST endpoint at /api/chat/ that proxies citizen messages
+to the Google Gemini API and returns a structured reply. The chatbot is
+aware of CivicSense-specific knowledge: issue categories, department routing,
+severity levels, and the report submission workflow.
+
+Key behaviours:
+  - Rate-limited to 20 requests per IP per hour (Django cache-backed).
+  - Model selection is lazy and preference-ordered: available flash models
+    are discovered on first request and cached for the process lifetime.
+    The last successful model is tried first on all subsequent calls.
+  - 429 quota exhaustion triggers a short sleep-and-retry (once, if the
+    retry delay is 10 s or less), then falls through to the next model.
+  - 404 model-not-found errors prune the model from the available list.
+  - All error paths return HTTP 200 with a user-friendly reply string so
+    the frontend never needs to handle non-2xx chat responses.
+
+Module: core
+Author: Ankitha
+"""
+
+# Standard library
 import json
 import logging
 import re
 import time
+
+# Third-party
 from google import genai
 from google.genai import types
 from google.genai.errors import ClientError

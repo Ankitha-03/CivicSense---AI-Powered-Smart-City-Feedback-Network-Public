@@ -1,4 +1,21 @@
-import React, { useEffect, useState } from "react";
+/**
+ * IssueDetail.jsx
+ *
+ * Full detail view for a single citizen issue report. Fetches the issue by
+ * its URL parameter ID and renders:
+ *
+ *   - Title, description, status/severity/category badges
+ *   - Three-step status progress timeline
+ *   - Photo Evidence panel with full-screen lightbox
+ *   - AI Analysis card (Gemini Vision results: detected category, confidence
+ *     bar, description, match indicator, severity assessment)
+ *   - Status Updates timeline with department notes
+ *   - Sidebar with report metadata (location, assigned department, contact)
+ *
+ * Data is fetched via GET /api/issues/{id}/.
+ */
+
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, MapPin, Calendar, User, Phone, Mail, Tag, AlertTriangle, X, Building2, CheckCircle } from "lucide-react";
 import { fetchIssueById } from "../api/issuesApi";

@@ -1,4 +1,15 @@
-import React, { useState, useMemo } from "react";
+/**
+ * MyReports.jsx
+ *
+ * Displays all civic issue reports submitted by the current citizen.
+ * Provides client-side filtering by category, status, and severity, plus
+ * a free-text search across title, description, and location.
+ *
+ * Data is fetched once via useIssues and filtered in-memory using useMemo
+ * so filter changes are instant without additional API calls.
+ */
+
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal, ChevronRight } from "lucide-react";
 import { useIssues } from "../hooks/useIssues";
